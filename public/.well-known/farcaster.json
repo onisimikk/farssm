@@ -1,0 +1,36 @@
+{
+    "accountAssociation": {
+        "header": "BASE64_ENCODED_HEADER_FROM_WARPCAST",
+        "payload": "BASE64_ENCODED_PAYLOAD_FROM_WARPCAST",
+        "signature": "SIGNATURE_FROM_WARPCAST"
+    },
+    "miniapp": {
+        "version": "1",
+        "name": "Block Breaker",
+        "subtitle": "Classic brick breaking game on Base",
+        "description": "Play the classic block breaker game and save your high scores on Base blockchain. No wallet required to play!",
+        "screenshotUrls": [
+            "https://yourapp.vercel.app/splash.png"
+        ],
+        "iconUrl": "https://yourapp.vercel.app/icon.png",
+        "splashImageUrl": "https://yourapp.vercel.app/splash.png",
+        "splashBackgroundColor": "#1a1a2e",
+        "homeUrl": "https://yourapp.vercel.app",
+        "webhookUrl": "https://yourapp.vercel.app/api/frame",
+        "primaryCategory": "games",
+        "tags": [
+            "game",
+            "arcade",
+            "blockchain",
+            "base"
+        ],
+        "heroImageUrl": "https://yourapp.vercel.app/splash.png",
+        "tagline": "Break blocks, save scores on-chain",
+        "ogTitle": "Block Breaker - Play & Earn",
+        "ogDescription": "Classic arcade game with blockchain score persistence",
+        "ogImageUrl": "https://yourapp.vercel.app/splash.png"
+    },
+    "baseBuilder": {
+        "ownerAddress": "0xYOUR_WALLET_ADDRESS_FROM_BASE_BUILD"
+    }
+}

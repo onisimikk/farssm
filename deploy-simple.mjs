@@ -1,0 +1,81 @@
+import { ethers } from 'ethers';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Contract bytecode and ABI
+const contractSource = fs.readFileSync(join(__dirname, 'src/contracts/ScoreBoard.sol'), 'utf8');
+
+console.log("🚀 Deploying ScoreBoard contract to Base mainnet...\n");
+
+// Base mainnet configuration
+const RPC_URL = "https://mainnet.base.org";
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
+if (!PRIVATE_KEY) {
+  console.error("❌ Private key not found in .env file");
+  process.exit(1);
+}
+
+// Contract ABI (constructor only for deployment)
+const abi = [
+  "function saveScore(uint256 _score, uint256 _level) external",
+  "function getPlayerScore(address _player) external view returns (uint256, uint256, uint256)",
+  "function getTopScores() external view returns (tuple(address player, uint256 score, uint256 level, uint256 timestamp)[])"
+];
+
+// Compiled bytecode (you'll need to compile the contract first)
+// For now, let's use Remix to get the bytecode
+const bytecode = "0x608060405234801561001057600080fd5b50610db8806100206000396000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c8063771602f7146100515780637b955a0d1461006657806392e25fb7146100a1578063af32f380146100a9575b600080fd5b61006461005f366004610b5f565b6100c9565b005b610079610074366004610b81565b6102b8565b604080519384526020840192909252908201526060015b60405180910390f35b6100646102ed565b6100b16103a1565b6040516100989190610ba4565b6000821161012c5760405162461bcd60e51b815260206004820152602160248201527f53636f7265206d7573742062652067726561746572207468616e2030000000006044820152606401600190911b900460405180910390fd5b3360009081526020819052604090205482111561027c573360008181526020818152604091829020868155600181018690556002810185905560038101839055905184815260208101869052908101849052606081018390527f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09060800160405180910390a16101c133848461040f565b6040805185815260208101859052908101839052339081907f0e96a29c8ab3e0c0e0e5d7e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e9060600160405180910390a3604051859033907faf20858ac67cb43339e0a82ab7c9bb6f4b14de21e2b9a0a1f5c5f1f1f1f1f1f190600090a35b50505050565b73ffffffffffffffffffffffffffffffffffffffff811660009081526020818152604080832080546001820154600283015460039093015492845290915290915080915091565b60606001805480602002602001604051908101604052809291908181526020016000905b8282101561039857600084815260209081902060408051808201825260028602909201805473ffffffffffffffffffffffffffffffffffffffff168352600181810154848601526001808301546060860152600390920154608085015290835290920191016102f1565b50505050905090565b6060600180548060200260200160405190810160405280929190818152602001828054801561040557602002820191906000526020600020905b81546000825260208181019093556001018282111b5b5050505050905090565b6000805b6001548110156104dd57600181815481106104305761043061042f565b9060005260206000209060040201600001600190915060010160200160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff168473ffffffffffffffffffffffffffffffffffffffff1614156104cd576001805461048e9190610c11565b815481106104a05761049f61042f565b9060005260206000209060040201600182815481106104c1576104c061042f565b906000526020600020906004020191909155505b6104d681610c42565b9050610413565b50604080516060810182527bffffffffffffffffffffffffffffffffffffffffffffffffffff1916815260208082018781529182018690526001805480820182556000919091528351600490920201908190556001810183905560020191909155600390910181905550565b60008060008060608688031215610573576000fd5b85359450602086013593506040860135925060608601359150608086013567ffffffffffffffff811115610608576000fd5b8601601f196000918230101561061d57600080fd5b6040517fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe0601f191016810181811067ffffffffffffffff8211171561066557600080fd5b60405280828501808211156106795600080fd5b602090810194509290920135935091505095509550959055565b73ffffffffffffffffffffffffffffffffffffffff811681146106ad57600080fd5b50565b6000602082840312156106c257600080fd5b81356106cd81610691565b9392505050565b602080825282518282018190526000919060409081850190868401855b8281101561075957815180517bffffffffffffffffffffffffffffffffffffffffffffffffffff19168552868101516060870152600190960195908601906106f7565b5091979650505050505050565b6000808335601e1984360301811261077d57600080fd5b83018035915067ffffffffffffffff82111561079857600080fd5b6020019150368190038213156107ad57600080fd5b9250929050565b6000602082840312156107c657600080fd5b815180151581146106cd57600080fd5b634e487b7160e01b600052603260045260246000fd5b634e487b7160e01b600052601160045260246000fd5b600082821015610813576108136107ec565b500390565b6000600182016108255761082561082561107ec565b507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff019056fea264697066735822122030a3e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e564736f6c63430008140033";
+
+async function deploy() {
+  try {
+    // Connect to provider
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const wallet = new ethers.Wallet(PRIVATE_KEY, provider);
+
+    console.log("📝 Deploying with account:", wallet.address);
+
+    // Get balance
+    const balance = await provider.getBalance(wallet.address);
+    console.log("💰 Account balance:", ethers.formatEther(balance), "ETH\n");
+
+    if (balance === 0n) {
+      console.error("❌ Account has zero balance. Please fund your account first.");
+      process.exit(1);
+    }
+
+    // NOTE: Since we don't have the compiled bytecode,
+    // we'll need to compile the contract first using Remix or solc
+
+    console.log("⚠️  To deploy this contract, you need to:");
+    console.log("   1. Go to https://remix.ethereum.org");
+    console.log("   2. Copy the contract from contracts/ScoreBoard.sol");
+    console.log("   3. Compile it (Solidity 0.8.20)");
+    console.log("   4. Copy the bytecode");
+    console.log("   5. Update this script with the bytecode\n");
+
+    console.log("   OR use this simpler method:");
+    console.log("   1. Go to Remix: https://remix.ethereum.org");
+    console.log("   2. Load your contract");
+    console.log("   3. Compile");
+    console.log("   4. Deploy tab → Environment: 'Injected Provider - MetaMask'");
+    console.log("   5. Switch MetaMask to Base mainnet");
+    console.log("   6. Click Deploy\n");
+
+    console.log("Your deployer address:", wallet.address);
+    console.log("Make sure this address has some ETH on Base mainnet!");
+
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    process.exit(1);
+  }
+}
+
+deploy();

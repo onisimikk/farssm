@@ -1,0 +1,8 @@
+{
+  "network": "base-mainnet",
+  "chainId": 8453,
+  "contractAddress": "0xFb6647fA124D021225d52Fc74B2F927F76f3B568",
+  "deployedAt": "2025-12-07T16:27:49.574Z",
+  "deployer": "0x21338b5Be646B545745aa8e072e475f7C2aA82c5",
+  "transactionHash": "0x951a15377c854342ed0a4aaa289a9964f5c8ef42510e819dc801c14b1e75a7b9"
+}

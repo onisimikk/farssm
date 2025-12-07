@@ -1,0 +1,302 @@
+'use client'
+
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { Ball, Paddle, Block, GameState } from '@/types/game'
+
+const CANVAS_WIDTH = 800
+const CANVAS_HEIGHT = 600
+const PADDLE_WIDTH = 120
+const PADDLE_HEIGHT = 15
+const BALL_RADIUS = 8
+const BLOCK_ROWS = 5
+const BLOCK_COLS = 10
+const BLOCK_WIDTH = 75
+const BLOCK_HEIGHT = 20
+const BLOCK_PADDING = 5
+
+export function useBlockBreaker() {
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const animationRef = useRef<number>(null)
+
+    const [gameState, setGameState] = useState<GameState>({
+        score: 0,
+        lives: 3,
+        level: 1,
+        isPlaying: false,
+        isGameOver: false,
+        isPaused: false,
+    })
+
+    const [ball, setBall] = useState<Ball>({
+        x: CANVAS_WIDTH / 2,
+        y: CANVAS_HEIGHT - 40,
+        dx: 3,
+        dy: -3,
+        radius: BALL_RADIUS,
+        speed: 1,
+    })
+
+    const [paddle, setPaddle] = useState<Paddle>({
+        x: CANVAS_WIDTH / 2 - PADDLE_WIDTH / 2,
+        y: CANVAS_HEIGHT - 30,
+        width: PADDLE_WIDTH,
+        height: PADDLE_HEIGHT,
+        speed: 8,
+    })
+
+    const [blocks, setBlocks] = useState<Block[]>([])
+
+    // Initialize blocks
+    const initializeBlocks = useCallback(() => {
+        const newBlocks: Block[] = []
+        const colors = ['#e94560', '#0f3460', '#00d9ff', '#ffb400', '#7f5af0']
+
+        for (let row = 0; row < BLOCK_ROWS; row++) {
+            for (let col = 0; col < BLOCK_COLS; col++) {
+                newBlocks.push({
+                    x: col * (BLOCK_WIDTH + BLOCK_PADDING) + 35,
+                    y: row * (BLOCK_HEIGHT + BLOCK_PADDING) + 80,
+                    width: BLOCK_WIDTH,
+                    height: BLOCK_HEIGHT,
+                    color: colors[row % colors.length],
+                    visible: true,
+                    points: (BLOCK_ROWS - row) * 10,
+                })
+            }
+        }
+        setBlocks(newBlocks)
+    }, [])
+
+    // Mouse movement for paddle
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!canvasRef.current || !gameState.isPlaying) return
+
+            const rect = canvasRef.current.getBoundingClientRect()
+            const scaleX = CANVAS_WIDTH / rect.width
+            const mouseX = (e.clientX - rect.left) * scaleX
+
+            setPaddle(prev => ({
+                ...prev,
+                x: Math.max(0, Math.min(CANVAS_WIDTH - PADDLE_WIDTH, mouseX - PADDLE_WIDTH / 2))
+            }))
+        }
+
+        if (gameState.isPlaying) {
+            window.addEventListener('mousemove', handleMouseMove)
+        }
+        return () => window.removeEventListener('mousemove', handleMouseMove)
+    }, [gameState.isPlaying])
+
+    // Touch movement for mobile
+    useEffect(() => {
+        const handleTouchMove = (e: TouchEvent) => {
+            if (!canvasRef.current || !gameState.isPlaying) return
+            e.preventDefault()
+
+            const rect = canvasRef.current.getBoundingClientRect()
+            const scaleX = CANVAS_WIDTH / rect.width
+            const touchX = (e.touches[0].clientX - rect.left) * scaleX
+
+            setPaddle(prev => ({
+                ...prev,
+                x: Math.max(0, Math.min(CANVAS_WIDTH - PADDLE_WIDTH, touchX - PADDLE_WIDTH / 2))
+            }))
+        }
+
+        const canvas = canvasRef.current
+        if (canvas && gameState.isPlaying) {
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false })
+            return () => canvas.removeEventListener('touchmove', handleTouchMove)
+        }
+    }, [gameState.isPlaying])
+
+    // Game loop
+    const gameLoop = useCallback(() => {
+        if (!canvasRef.current || gameState.isPaused) return
+
+        const ctx = canvasRef.current.getContext('2d')
+        if (!ctx) return
+
+        // Clear canvas
+        ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+        // Draw background
+        ctx.fillStyle = '#000'
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+        // Draw blocks
+        blocks.forEach(block => {
+            if (block.visible) {
+                ctx.fillStyle = block.color
+                ctx.fillRect(block.x, block.y, block.width, block.height)
+                ctx.strokeStyle = '#fff'
+                ctx.lineWidth = 2
+                ctx.strokeRect(block.x, block.y, block.width, block.height)
+            }
+        })
+
+        // Draw paddle
+        ctx.fillStyle = '#00d9ff'
+        ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height)
+        ctx.shadowBlur = 10
+        ctx.shadowColor = '#00d9ff'
+
+        // Draw ball
+        ctx.beginPath()
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2)
+        ctx.fillStyle = '#e94560'
+        ctx.fill()
+        ctx.shadowBlur = 15
+        ctx.shadowColor = '#e94560'
+        ctx.closePath()
+
+        // Update ball position
+        setBall(prev => {
+            let newX = prev.x + prev.dx
+            let newY = prev.y + prev.dy
+            let newDx = prev.dx
+            let newDy = prev.dy
+
+            // Wall collision
+            if (newX + prev.radius > CANVAS_WIDTH || newX - prev.radius < 0) {
+                newDx = -prev.dx
+            }
+            if (newY - prev.radius < 0) {
+                newDy = -prev.dy
+            }
+
+            // Paddle collision
+            if (
+                newY + prev.radius > paddle.y &&
+                newY - prev.radius < paddle.y + paddle.height &&
+                newX > paddle.x &&
+                newX < paddle.x + paddle.width
+            ) {
+                newDy = -Math.abs(prev.dy)
+                // Add angle based on where ball hits paddle
+                const hitPos = (newX - (paddle.x + paddle.width / 2)) / (paddle.width / 2)
+                newDx = hitPos * 5 // Max horizontal speed adjustment
+            }
+
+            // Block collision
+            setBlocks(prevBlocks => {
+                const newBlocks = prevBlocks.map(block => {
+                    if (
+                        block.visible &&
+                        newX + prev.radius > block.x &&
+                        newX - prev.radius < block.x + block.width &&
+                        newY + prev.radius > block.y &&
+                        newY - prev.radius < block.y + block.height
+                    ) {
+                        // Determine collision side
+                        // Simple version: just reverse Y if it hits top/bottom, X if left/right
+                        // For simplicity in this breakout clone, we mostly reverse Y unless it's a clear side hit
+                        // But simple AABB usually just reverses one component.
+                        // Let's stick to reversing Y for now as it feels more natural for breakout unless we do more complex math
+                        newDy = -newDy
+                        setGameState(gs => ({ ...gs, score: gs.score + block.points }))
+                        return { ...block, visible: false }
+                    }
+                    return block
+                })
+                return newBlocks
+            })
+
+            // Ball fell off screen
+            if (newY + prev.radius > CANVAS_HEIGHT) {
+                setGameState(gs => {
+                    const newLives = gs.lives - 1
+                    if (newLives <= 0) {
+                        return { ...gs, lives: 0, isPlaying: false, isGameOver: true }
+                    }
+                    // Reset ball position for next life
+                    setBall({
+                        x: CANVAS_WIDTH / 2,
+                        y: CANVAS_HEIGHT - 40,
+                        dx: 3,
+                        dy: -3,
+                        radius: BALL_RADIUS,
+                        speed: 1,
+                    })
+                    return { ...gs, lives: newLives }
+                })
+            }
+
+            return {
+                ...prev,
+                x: newX,
+                y: newY,
+                dx: newDx,
+                dy: newDy,
+            }
+        })
+
+        // Check if level complete
+        const visibleBlocks = blocks.filter(b => b.visible).length
+        if (visibleBlocks === 0 && blocks.length > 0) {
+            setGameState(prev => ({ ...prev, level: prev.level + 1, isPaused: true }))
+            setTimeout(() => {
+                initializeBlocks()
+                setBall(prev => ({ ...prev, speed: prev.speed + 0.5 }))
+                setGameState(prev => ({ ...prev, isPaused: false }))
+            }, 2000)
+        }
+
+        animationRef.current = requestAnimationFrame(gameLoop)
+    }, [ball, paddle, blocks, gameState.isPaused, initializeBlocks])
+
+    useEffect(() => {
+        if (gameState.isPlaying && !gameState.isPaused && !gameState.isGameOver) {
+            animationRef.current = requestAnimationFrame(gameLoop)
+        }
+        return () => {
+            if (animationRef.current) {
+                cancelAnimationFrame(animationRef.current)
+            }
+        }
+    }, [gameState.isPlaying, gameState.isPaused, gameState.isGameOver, gameLoop])
+
+    const startGame = () => {
+        initializeBlocks()
+        setGameState({
+            score: 0,
+            lives: 3,
+            level: 1,
+            isPlaying: true,
+            isGameOver: false,
+            isPaused: false,
+        })
+        setBall({
+            x: CANVAS_WIDTH / 2,
+            y: CANVAS_HEIGHT - 40,
+            dx: 3,
+            dy: -3,
+            radius: BALL_RADIUS,
+            speed: 1,
+        })
+    }
+
+    const pauseGame = () => {
+        setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }))
+    }
+
+    const resetGame = () => {
+        setGameState({
+            score: 0,
+            lives: 3,
+            level: 1,
+            isPlaying: false,
+            isGameOver: false,
+            isPaused: false,
+        })
+    }
+
+    return {
+        canvasRef,
+        gameState,
+        startGame,
+        pauseGame,
+        resetGame,
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "blockbreaker-contracts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "deploy": "hardhat run scripts/deploy.mjs --network base",
+    "deploy:testnet": "hardhat run scripts/deploy.mjs --network baseSepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.1.2",
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "dotenv": "^17.2.3",
+    "ethers": "^6.16.0",
+    "hardhat": "^2.27.1"
+  }
+}
