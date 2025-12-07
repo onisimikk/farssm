@@ -1,8 +1,8 @@
 {
     "accountAssociation": {
-        "header": "BASE64_ENCODED_HEADER_FROM_WARPCAST",
-        "payload": "BASE64_ENCODED_PAYLOAD_FROM_WARPCAST",
-        "signature": "SIGNATURE_FROM_WARPCAST"
+        "header": "eyJmaWQiOjc0MDkwMSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDBENzIxRDQ4NTg4OWM3M2MxMjQ2MDk4NzQwNjQyOEY0RTE3MkYwMDgifQ",
+        "payload": "eyJkb21haW4iOiJmYXJzc20udmVyY2VsLmFwcCJ9",
+        "signature": "tzBTwiXYpQKHTUoN7Vvx+JI+T+OS4nLbrSRXLlzWfKA9hATy4Yram3wLPshJp4eurO9G/wmEOqLzj2SxE85eoRw="
     },
     "miniapp": {
         "version": "1",
@@ -10,13 +10,13 @@
         "subtitle": "Classic brick breaking game on Base",
         "description": "Play the classic block breaker game and save your high scores on Base blockchain. No wallet required to play!",
         "screenshotUrls": [
-            "https://yourapp.vercel.app/splash.png"
+            "https://farssm.vercel.app/splash.png"
         ],
-        "iconUrl": "https://yourapp.vercel.app/icon.png",
-        "splashImageUrl": "https://yourapp.vercel.app/splash.png",
+        "iconUrl": "https://farssm.vercel.app/icon.png",
+        "splashImageUrl": "https://farssm.vercel.app/splash.png",
         "splashBackgroundColor": "#1a1a2e",
-        "homeUrl": "https://yourapp.vercel.app",
-        "webhookUrl": "https://yourapp.vercel.app/api/frame",
+        "homeUrl": "https://farssm.vercel.app",
+        "webhookUrl": "https://farssm.vercel.app/api/frame",
         "primaryCategory": "games",
         "tags": [
             "game",
@@ -24,13 +24,13 @@
             "blockchain",
             "base"
         ],
-        "heroImageUrl": "https://yourapp.vercel.app/splash.png",
+        "heroImageUrl": "https://farssm.vercel.app/splash.png",
         "tagline": "Break blocks, save scores on-chain",
         "ogTitle": "Block Breaker - Play & Earn",
         "ogDescription": "Classic arcade game with blockchain score persistence",
-        "ogImageUrl": "https://yourapp.vercel.app/splash.png"
+        "ogImageUrl": "https://farssm.vercel.app/splash.png"
     },
     "baseBuilder": {
-        "ownerAddress": "0xYOUR_WALLET_ADDRESS_FROM_BASE_BUILD"
+        "ownerAddress": "0x21338b5Be646B545745aa8e072e475f7C2aA82c5"
     }
 }
