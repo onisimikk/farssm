@@ -140,23 +140,25 @@ export default function SplashScreen({ onStart }: SplashScreenProps) {
         .splash-features {
           display: flex;
           justify-content: center;
-          gap: 30px;
-          margin-bottom: 50px;
-          flex-wrap: wrap;
+          gap: 15px;
+          margin-bottom: 30px;
+          flex-wrap: nowrap;
+          padding: 0 20px;
         }
 
         .feature-item {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           align-items: center;
-          gap: 10px;
-          font-size: 14px;
+          gap: 5px;
+          font-size: 11px;
           color: #fff;
           opacity: 0.9;
+          white-space: nowrap;
         }
 
         .feature-icon {
-          font-size: 32px;
+          font-size: 18px;
           animation: float 3s ease-in-out infinite;
         }
 
@@ -302,8 +304,17 @@ export default function SplashScreen({ onStart }: SplashScreenProps) {
           }
 
           .splash-features {
-            flex-direction: column;
-            gap: 20px;
+            gap: 10px;
+            padding: 0 10px;
+          }
+
+          .feature-item {
+            font-size: 9px;
+            gap: 3px;
+          }
+
+          .feature-icon {
+            font-size: 14px;
           }
 
           .splash-button {
