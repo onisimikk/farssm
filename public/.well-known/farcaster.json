@@ -7,7 +7,7 @@
     "miniapp": {
         "version": "1",
         "name": "Block Breaker",
-        "subtitle": "Classic brick breaking game on Base",
+        "subtitle": "Arcade game on Base",
         "description": "Play the classic block breaker game and save your high scores on Base blockchain. No wallet required to play!",
         "screenshotUrls": [
             "https://farssm.vercel.app/splash.png"
@@ -25,8 +25,8 @@
             "base"
         ],
         "heroImageUrl": "https://farssm.vercel.app/splash.png",
-        "tagline": "Break blocks, save scores on-chain",
-        "ogTitle": "Block Breaker - Play & Earn",
+        "tagline": "Break blocks on Base chain",
+        "ogTitle": "Block Breaker Game",
         "ogDescription": "Classic arcade game with blockchain score persistence",
         "ogImageUrl": "https://farssm.vercel.app/splash.png"
     },
