@@ -8,7 +8,6 @@ export interface FarcasterUser {
     username: string
     displayName: string
     pfpUrl: string
-    custody?: string
 }
 
 export function useFarcasterUser() {
@@ -27,7 +26,6 @@ export function useFarcasterUser() {
                         username: context.user.username || `fid:${context.user.fid}`,
                         displayName: context.user.displayName || context.user.username || `User ${context.user.fid}`,
                         pfpUrl: context.user.pfpUrl || '',
-                        custody: context.user.custody,
                     })
                 }
             } catch (error) {
