@@ -3,7 +3,7 @@
 import { useBlockBreaker } from '@/hooks/useBlockBreaker'
 import { useLocalScore } from '@/hooks/useLocalScore'
 import { useScoreContract } from '@/hooks/useScoreContract'
-import { useFarcasterUser } from '@/hooks/useFarcasterUser'
+import { useUser } from '@/hooks/useUser'
 import { useWallet } from '@/contexts/WalletContext'
 import WalletConnect from './WalletConnect'
 import SplashScreen from './SplashScreen'
@@ -16,7 +16,7 @@ export default function BlockBreakerGame() {
     const { localScores, saveLocalScore } = useLocalScore()
     const { saveScore, isPending, isConfirming, isSuccess } = useScoreContract()
     const { isConnected, walletAddress } = useWallet()
-    const { user } = useFarcasterUser()
+    const { user } = useUser()
     const [showSplash, setShowSplash] = useState(true)
     const [showMenu, setShowMenu] = useState(false)
 

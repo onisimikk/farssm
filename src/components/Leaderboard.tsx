@@ -19,7 +19,7 @@ export default function Leaderboard() {
     refetch()
   }, [refetch])
 
-  // Fetch user profiles from Farcaster for addresses
+  // Fetch user profiles for addresses
   useEffect(() => {
     async function fetchUserProfiles() {
       if (!topScores || topScores.length === 0) return
@@ -29,14 +29,14 @@ export default function Leaderboard() {
       for (const score of topScores) {
         const address = score.player
         try {
-          // Try to fetch from Farcaster Indexer API
+          // Try to fetch from social graph API
           const response = await fetch(`https://api.farcaster.xyz/v2/verifications?address=${address}`)
           const data = await response.json()
 
           if (data.result?.verifications?.[0]?.fid) {
             const fid = data.result.verifications[0].fid
 
-            // Fetch user data by FID
+            // Fetch user data
             const userResponse = await fetch(`https://api.farcaster.xyz/v2/user-by-fid?fid=${fid}`)
             const userData = await userResponse.json()
 

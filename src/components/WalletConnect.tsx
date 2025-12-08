@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import sdk from '@farcaster/miniapp-sdk'
-import { useFarcasterUser } from '@/hooks/useFarcasterUser'
+import { useUser } from '@/hooks/useUser'
 import { useWallet } from '@/contexts/WalletContext'
 import Image from 'next/image'
 
 export default function WalletConnect() {
-    const { user } = useFarcasterUser()
+    const { user } = useUser()
     const { walletAddress, setWalletAddress } = useWallet()
     const [isConnecting, setIsConnecting] = useState(false)
     const [mounted, setMounted] = useState(false)
@@ -20,12 +20,11 @@ export default function WalletConnect() {
         try {
             setIsConnecting(true)
 
-            // Get wallet address from Farcaster context
+            // Get wallet address from SDK
             const context = await sdk.context
 
             if (context?.user) {
-                // In Farcaster, users have verified wallet addresses
-                // We can get it from the context or use eth_accounts
+                // Request wallet access
                 const accounts = await sdk.wallet.ethProvider.request({
                     method: 'eth_accounts' as any,
                 }) as string[]
