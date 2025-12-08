@@ -27,14 +27,17 @@ export function useScoreContract() {
                 args: [BigInt(score), BigInt(level)],
             })
 
-            // Send transaction through MiniKit
-            const result = await sdk.wallet.sendTransaction({
-                to: CONTRACT_ADDRESS,
-                data: data,
-                value: '0',
-            })
+            // Send transaction through MiniKit's ethProvider
+            const txHash = await sdk.wallet.ethProvider.request({
+                method: 'eth_sendTransaction' as any,
+                params: [{
+                    to: CONTRACT_ADDRESS,
+                    data: data,
+                    value: '0x0',
+                }],
+            }) as string
 
-            setHash(result.transactionHash)
+            setHash(txHash)
             setIsPending(false)
             setIsConfirming(true)
 

@@ -20,11 +20,28 @@ export default function WalletConnect() {
         try {
             setIsConnecting(true)
 
-            // Request wallet connection through Farcaster MiniKit
-            const result = await sdk.wallet.connectWallet()
+            // Get wallet address from Farcaster context
+            const context = await sdk.context
 
-            if (result.address) {
-                setWalletAddress(result.address)
+            if (context?.user) {
+                // In Farcaster, users have verified wallet addresses
+                // We can get it from the context or use eth_accounts
+                const accounts = await sdk.wallet.ethProvider.request({
+                    method: 'eth_accounts' as any,
+                }) as string[]
+
+                if (accounts && accounts.length > 0) {
+                    setWalletAddress(accounts[0])
+                } else {
+                    // Request account access
+                    const newAccounts = await sdk.wallet.ethProvider.request({
+                        method: 'eth_requestAccounts' as any,
+                    }) as string[]
+
+                    if (newAccounts && newAccounts.length > 0) {
+                        setWalletAddress(newAccounts[0])
+                    }
+                }
             }
         } catch (error) {
             console.error('Failed to connect wallet:', error)
