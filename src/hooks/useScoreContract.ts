@@ -3,8 +3,8 @@
 import { useReadContract } from 'wagmi'
 import { ScoreBoardABI } from '@/contracts/ScoreBoardABI'
 import { useState } from 'react'
-import sdk from '@farcaster/miniapp-sdk'
 import { encodeFunctionData } from 'viem'
+import { sendTransaction } from '@/utils/batchTransactions'
 
 // Hardcoded contract address on Base mainnet
 // Deployed: 2025-12-07 | TX: 0x951a15377c854342ed0a4aaa289a9964f5c8ef42510e819dc801c14b1e75a7b9
@@ -27,21 +27,19 @@ export function useScoreContract() {
                 args: [BigInt(score), BigInt(level)],
             })
 
-            // Send transaction through MiniKit's ethProvider
-            const txHash = await sdk.wallet.ethProvider.request({
-                method: 'eth_sendTransaction' as any,
-                params: [{
-                    to: CONTRACT_ADDRESS,
-                    data: data,
-                    value: '0x0',
-                }],
-            }) as string
+            // Use EIP-5792 batching-compatible transaction
+            // This supports batching multiple calls in a single signature prompt
+            const result = await sendTransaction({
+                to: CONTRACT_ADDRESS,
+                data: data,
+                value: '0x0',
+            })
 
-            setHash(txHash)
+            setHash(result.bundleId)
             setIsPending(false)
             setIsConfirming(true)
 
-            // Wait for transaction confirmation (simplified - in production you'd poll for receipt)
+            // Wait for transaction confirmation
             setTimeout(() => {
                 setIsConfirming(false)
                 setIsSuccess(true)
