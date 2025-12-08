@@ -18,11 +18,8 @@ export function useFarcasterUser() {
     useEffect(() => {
         async function loadUser() {
             try {
-                // Initialize SDK
-                await sdk.init()
-
-                // Get user context
-                const context = await sdk.context
+                // Get user context directly
+                const context = sdk.context
 
                 if (context?.user) {
                     setUser({
