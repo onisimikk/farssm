@@ -4,7 +4,7 @@ import { useBlockBreaker } from '@/hooks/useBlockBreaker'
 import { useLocalScore } from '@/hooks/useLocalScore'
 import { useScoreContract } from '@/hooks/useScoreContract'
 import { useFarcasterUser } from '@/hooks/useFarcasterUser'
-import { useAccount } from 'wagmi'
+import { useWallet } from '@/contexts/WalletContext'
 import WalletConnect from './WalletConnect'
 import SplashScreen from './SplashScreen'
 import Leaderboard from './Leaderboard'
@@ -15,7 +15,7 @@ export default function BlockBreakerGame() {
     const { canvasRef, gameState, startGame, pauseGame, resetGame } = useBlockBreaker()
     const { localScores, saveLocalScore } = useLocalScore()
     const { saveScore, isPending, isConfirming, isSuccess } = useScoreContract()
-    const { isConnected, address } = useAccount()
+    const { isConnected, walletAddress } = useWallet()
     const { user } = useFarcasterUser()
     const [showSplash, setShowSplash] = useState(true)
     const [showMenu, setShowMenu] = useState(false)

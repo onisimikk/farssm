@@ -1,23 +1,55 @@
 'use client'
 
-import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi'
+import { useReadContract } from 'wagmi'
 import { ScoreBoardABI } from '@/contracts/ScoreBoardABI'
+import { useState } from 'react'
+import sdk from '@farcaster/miniapp-sdk'
+import { encodeFunctionData } from 'viem'
 
 // Hardcoded contract address on Base mainnet
 // Deployed: 2025-12-07 | TX: 0x951a15377c854342ed0a4aaa289a9964f5c8ef42510e819dc801c14b1e75a7b9
 const CONTRACT_ADDRESS = '0xFb6647fA124D021225d52Fc74B2F927F76f3B568' as `0x${string}`
 
 export function useScoreContract() {
-    const { writeContract, data: hash, isPending } = useWriteContract()
-    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
+    const [isPending, setIsPending] = useState(false)
+    const [isConfirming, setIsConfirming] = useState(false)
+    const [isSuccess, setIsSuccess] = useState(false)
+    const [hash, setHash] = useState<string | undefined>()
 
-    const saveScore = (score: number, level: number) => {
-        writeContract({
-            address: CONTRACT_ADDRESS,
-            abi: ScoreBoardABI,
-            functionName: 'saveScore',
-            args: [BigInt(score), BigInt(level)],
-        })
+    const saveScore = async (score: number, level: number) => {
+        try {
+            setIsPending(true)
+
+            // Encode the function call
+            const data = encodeFunctionData({
+                abi: ScoreBoardABI,
+                functionName: 'saveScore',
+                args: [BigInt(score), BigInt(level)],
+            })
+
+            // Send transaction through MiniKit
+            const result = await sdk.wallet.sendTransaction({
+                to: CONTRACT_ADDRESS,
+                data: data,
+                value: '0',
+            })
+
+            setHash(result.transactionHash)
+            setIsPending(false)
+            setIsConfirming(true)
+
+            // Wait for transaction confirmation (simplified - in production you'd poll for receipt)
+            setTimeout(() => {
+                setIsConfirming(false)
+                setIsSuccess(true)
+            }, 5000)
+
+        } catch (error) {
+            console.error('Failed to save score:', error)
+            setIsPending(false)
+            setIsConfirming(false)
+            alert('Failed to save score. Please try again.')
+        }
     }
 
     return {

@@ -1,26 +1,64 @@
 'use client'
 
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { useState, useEffect } from 'react'
+import sdk from '@farcaster/miniapp-sdk'
+import { useFarcasterUser } from '@/hooks/useFarcasterUser'
+import { useWallet } from '@/contexts/WalletContext'
+import Image from 'next/image'
 
 export default function WalletConnect() {
-    const { address, isConnected } = useAccount()
-    const { connectors, connect } = useConnect()
-    const { disconnect } = useDisconnect()
-    const [showOptions, setShowOptions] = useState(false)
+    const { user } = useFarcasterUser()
+    const { walletAddress, setWalletAddress } = useWallet()
+    const [isConnecting, setIsConnecting] = useState(false)
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
         setMounted(true)
     }, [])
 
+    const handleConnect = async () => {
+        try {
+            setIsConnecting(true)
+
+            // Request wallet connection through Farcaster MiniKit
+            const result = await sdk.wallet.connectWallet()
+
+            if (result.address) {
+                setWalletAddress(result.address)
+            }
+        } catch (error) {
+            console.error('Failed to connect wallet:', error)
+            alert('Failed to connect wallet. Please try again.')
+        } finally {
+            setIsConnecting(false)
+        }
+    }
+
+    const handleDisconnect = () => {
+        setWalletAddress(null)
+    }
+
     if (!mounted) return null
 
-    if (isConnected && address) {
+    if (walletAddress) {
         return (
             <div className="wallet-info">
-                <p>Connected: {address.slice(0, 6)}...{address.slice(-4)}</p>
-                <button className="game-button" onClick={() => disconnect()}>
+                {user && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', justifyContent: 'center' }}>
+                        {user.pfpUrl && (
+                            <Image
+                                src={user.pfpUrl}
+                                alt={user.displayName}
+                                width={32}
+                                height={32}
+                                style={{ borderRadius: '50%' }}
+                            />
+                        )}
+                        <span>@{user.username}</span>
+                    </div>
+                )}
+                <p>Wallet: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}</p>
+                <button className="game-button" onClick={handleDisconnect}>
                     Disconnect
                 </button>
             </div>
@@ -31,28 +69,11 @@ export default function WalletConnect() {
         <div className="wallet-connect">
             <button
                 className="game-button"
-                onClick={() => setShowOptions(!showOptions)}
+                onClick={handleConnect}
+                disabled={isConnecting}
             >
-                🔗 Sign Wallet
+                {isConnecting ? '⏳ Connecting...' : '🔗 Connect Wallet'}
             </button>
-
-            {showOptions && (
-                <div className="connector-options" style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    {connectors.map((connector) => (
-                        <button
-                            key={connector.uid}
-                            className="game-button"
-                            style={{ fontSize: '14px', padding: '8px 16px' }}
-                            onClick={() => {
-                                connect({ connector })
-                                setShowOptions(false)
-                            }}
-                        >
-                            {connector.name}
-                        </button>
-                    ))}
-                </div>
-            )}
         </div>
     )
 }

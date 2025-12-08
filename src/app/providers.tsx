@@ -5,6 +5,7 @@ import { useState, useEffect, type ReactNode } from 'react'
 import { WagmiProvider } from 'wagmi'
 import sdk from '@farcaster/miniapp-sdk'
 import { config } from '@/app/config/wagmi'
+import { WalletProvider } from '@/contexts/WalletContext'
 
 export function Providers({ children }: { children: ReactNode }) {
     const [queryClient] = useState(() => new QueryClient())
@@ -27,7 +28,9 @@ export function Providers({ children }: { children: ReactNode }) {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                {children}
+                <WalletProvider>
+                    {children}
+                </WalletProvider>
             </QueryClientProvider>
         </WagmiProvider>
     )
