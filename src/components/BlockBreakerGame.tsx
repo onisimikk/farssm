@@ -3,17 +3,20 @@
 import { useBlockBreaker } from '@/hooks/useBlockBreaker'
 import { useLocalScore } from '@/hooks/useLocalScore'
 import { useScoreContract } from '@/hooks/useScoreContract'
+import { useFarcasterUser } from '@/hooks/useFarcasterUser'
 import { useAccount } from 'wagmi'
 import WalletConnect from './WalletConnect'
 import SplashScreen from './SplashScreen'
 import Leaderboard from './Leaderboard'
 import { useState } from 'react'
+import Image from 'next/image'
 
 export default function BlockBreakerGame() {
     const { canvasRef, gameState, startGame, pauseGame, resetGame } = useBlockBreaker()
     const { localScores, saveLocalScore } = useLocalScore()
     const { saveScore, isPending, isConfirming, isSuccess } = useScoreContract()
     const { isConnected, address } = useAccount()
+    const { user } = useFarcasterUser()
     const [showSplash, setShowSplash] = useState(true)
     const [showMenu, setShowMenu] = useState(false)
 
@@ -148,9 +151,18 @@ export default function BlockBreakerGame() {
                 </button>
             </div>
 
-            {isConnected && address && (
-                <div className="wallet-info" style={{ marginTop: '10px' }}>
-                    Connected: {address.slice(0, 6)}...{address.slice(-4)}
+            {user && (
+                <div className="wallet-info" style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                    {user.pfpUrl && (
+                        <Image
+                            src={user.pfpUrl}
+                            alt={user.displayName}
+                            width={24}
+                            height={24}
+                            style={{ borderRadius: '50%' }}
+                        />
+                    )}
+                    <span>@{user.username}</span>
                 </div>
             )}
 

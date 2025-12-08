@@ -2,7 +2,24 @@
 const nextConfig = {
     reactStrictMode: true,
     images: {
-        domains: ['yourapp.vercel.app'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**.vercel.app',
+            },
+            {
+                protocol: 'https',
+                hostname: 'i.imgur.com',
+            },
+            {
+                protocol: 'https',
+                hostname: '**.farcaster.xyz',
+            },
+            {
+                protocol: 'https',
+                hostname: 'imagedelivery.net',
+            },
+        ],
     },
     webpack: (config) => {
         config.externals.push('pino-pretty', 'lokijs', 'encoding', '@react-native-async-storage/async-storage')

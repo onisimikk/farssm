@@ -1,15 +1,63 @@
 'use client'
 
 import { useTopScores } from '@/hooks/useScoreContract'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import Image from 'next/image'
+
+interface UserProfile {
+  username?: string
+  displayName?: string
+  pfpUrl?: string
+}
 
 export default function Leaderboard() {
   const { topScores, refetch } = useTopScores()
+  const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({})
 
   // Auto-refresh on mount
   useEffect(() => {
     refetch()
   }, [refetch])
+
+  // Fetch user profiles from Farcaster for addresses
+  useEffect(() => {
+    async function fetchUserProfiles() {
+      if (!topScores || topScores.length === 0) return
+
+      const profiles: Record<string, UserProfile> = {}
+
+      for (const score of topScores) {
+        const address = score.player
+        try {
+          // Try to fetch from Farcaster Indexer API
+          const response = await fetch(`https://api.farcaster.xyz/v2/verifications?address=${address}`)
+          const data = await response.json()
+
+          if (data.result?.verifications?.[0]?.fid) {
+            const fid = data.result.verifications[0].fid
+
+            // Fetch user data by FID
+            const userResponse = await fetch(`https://api.farcaster.xyz/v2/user-by-fid?fid=${fid}`)
+            const userData = await userResponse.json()
+
+            if (userData.result?.user) {
+              profiles[address] = {
+                username: userData.result.user.username,
+                displayName: userData.result.user.displayName,
+                pfpUrl: userData.result.user.pfp?.url,
+              }
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to fetch profile for ${address}:`, error)
+        }
+      }
+
+      setUserProfiles(profiles)
+    }
+
+    fetchUserProfiles()
+  }, [topScores])
 
   // Format blockchain scores
   const blockchainScores = topScores ? topScores.map((score: any) => ({
@@ -45,11 +93,23 @@ export default function Leaderboard() {
                   {index > 2 && `#${index + 1}`}
                 </div>
                 <div className="player-info">
-                  <div className="player-address">
-                    {score.address === 'Guest'
-                      ? '👤 Guest Player'
-                      : `${score.address.slice(0, 6)}...${score.address.slice(-4)}`
-                    }
+                  <div className="player-address" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {userProfiles[score.address]?.pfpUrl && (
+                      <Image
+                        src={userProfiles[score.address].pfpUrl!}
+                        alt={userProfiles[score.address].displayName || 'User'}
+                        width={32}
+                        height={32}
+                        style={{ borderRadius: '50%' }}
+                      />
+                    )}
+                    {userProfiles[score.address]?.username ? (
+                      <span>@{userProfiles[score.address].username}</span>
+                    ) : score.address === 'Guest' ? (
+                      <span>👤 Guest Player</span>
+                    ) : (
+                      <span>{score.address.slice(0, 6)}...{score.address.slice(-4)}</span>
+                    )}
                   </div>
                   <div className="player-stats">
                     Level {score.level}
