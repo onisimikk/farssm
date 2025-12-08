@@ -18,10 +18,8 @@ export function useFarcasterUser() {
     useEffect(() => {
         async function loadUser() {
             try {
-                // Initialize SDK if not already
-                if (!sdk.isInitialized) {
-                    await sdk.init()
-                }
+                // Initialize SDK
+                await sdk.init()
 
                 // Get user context
                 const context = await sdk.context
