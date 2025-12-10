@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { Providers } from "./providers"
 import "./globals.css"
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://yourapp.vercel.app'
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://farssm.vercel.app'
 
 export const metadata: Metadata = {
     title: "Block Breaker - Play on Base",
