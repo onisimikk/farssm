@@ -13,12 +13,11 @@ export const metadata: Metadata = {
         images: [{
             url: `${APP_URL}/splash.png`,
             width: 1200,
-            height: 630,
+            height: 800,
             alt: "Block Breaker Game",
         }],
     },
     other: {
-        "fc:frame": "vNext",
         "fc:miniapp": JSON.stringify({
             version: "1",
             imageUrl: `${APP_URL}/splash.png`,
@@ -26,6 +25,18 @@ export const metadata: Metadata = {
                 title: "🎮 Play Now",
                 action: {
                     type: "launch_miniapp",
+                    name: "Block Breaker",
+                    url: APP_URL
+                }
+            }
+        }),
+        "fc:frame": JSON.stringify({
+            version: "1",
+            imageUrl: `${APP_URL}/splash.png`,
+            button: {
+                title: "🎮 Play Now",
+                action: {
+                    type: "launch_frame",
                     name: "Block Breaker",
                     url: APP_URL
                 }
