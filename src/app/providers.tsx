@@ -9,13 +9,11 @@ import { WalletProvider } from '@/contexts/WalletContext'
 
 export function Providers({ children }: { children: ReactNode }) {
     const [queryClient] = useState(() => new QueryClient())
-    const [isMiniKitReady, setIsMiniKitReady] = useState(false)
 
     useEffect(() => {
         const initMiniKit = async () => {
             try {
                 await sdk.actions.ready()
-                setIsMiniKitReady(true)
                 console.log('MiniKit SDK initialized')
             } catch (error) {
                 console.error('MiniKit initialization failed:', error)

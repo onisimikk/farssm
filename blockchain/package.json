@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
     "deploy": "hardhat run scripts/deploy.mjs --network base",
     "deploy:testnet": "hardhat run scripts/deploy.mjs --network baseSepolia"
   },

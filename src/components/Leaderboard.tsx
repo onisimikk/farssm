@@ -10,6 +10,13 @@ interface UserProfile {
   pfpUrl?: string
 }
 
+interface ScoreRow {
+  player: string
+  score: bigint | number
+  level: bigint | number
+  timestamp: bigint | number
+}
+
 export default function Leaderboard() {
   const { topScores, refetch } = useTopScores()
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({})
@@ -60,12 +67,12 @@ export default function Leaderboard() {
   }, [topScores])
 
   // Format blockchain scores
-  const blockchainScores = topScores ? topScores.map((score: any) => ({
+  const blockchainScores = (topScores as readonly ScoreRow[] | undefined)?.map((score) => ({
     address: score.player,
     score: Number(score.score),
     level: Number(score.level),
     timestamp: Number(score.timestamp),
-  })) : []
+  })) ?? []
 
   return (
     <div className="leaderboard-container">

@@ -13,9 +13,9 @@ import Image from 'next/image'
 
 export default function BlockBreakerGame() {
     const { canvasRef, gameState, startGame, pauseGame, resetGame } = useBlockBreaker()
-    const { localScores, saveLocalScore } = useLocalScore()
+    const { saveLocalScore } = useLocalScore()
     const { saveScore, isPending, isConfirming, isSuccess } = useScoreContract()
-    const { isConnected, walletAddress } = useWallet()
+    const { isConnected } = useWallet()
     const { user } = useUser()
     const [showSplash, setShowSplash] = useState(true)
     const [showMenu, setShowMenu] = useState(false)

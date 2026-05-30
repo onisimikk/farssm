@@ -23,12 +23,12 @@ async function main() {
 
   console.log("\n✅ ScoreBoard deployed successfully!");
   console.log("📍 Contract address:", contractAddress);
-  console.log("\n🔗 View on BaseScan:");
-  console.log(`   https://basescan.org/address/${contractAddress}`);
+  console.log("\n🔗 View on Base Blockscout:");
+  console.log(`   https://base.blockscout.com/address/${contractAddress}`);
 
   console.log("\n📋 Next steps:");
   console.log(`   1. Update src/hooks/useScoreContract.ts with address: ${contractAddress}`);
-  console.log("   2. Test the contract on BaseScan");
+  console.log("   2. Test the contract on Base Blockscout");
   console.log("   3. Start using it in your game!");
 
   // Save the address to a file for reference

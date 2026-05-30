@@ -6,6 +6,10 @@ import { useUser } from '@/hooks/useUser'
 import { useWallet } from '@/contexts/WalletContext'
 import Image from 'next/image'
 
+type MiniAppEthereumProvider = {
+    request: <T>(args: { method: string; params?: unknown[] }) => Promise<T>
+}
+
 export default function WalletConnect() {
     const { user } = useUser()
     const { walletAddress, setWalletAddress } = useWallet()
@@ -19,23 +23,24 @@ export default function WalletConnect() {
     const handleConnect = async () => {
         try {
             setIsConnecting(true)
+            const ethProvider = sdk.wallet.ethProvider as unknown as MiniAppEthereumProvider
 
             // Get wallet address from SDK
             const context = await sdk.context
 
             if (context?.user) {
                 // Request wallet access
-                const accounts = await sdk.wallet.ethProvider.request({
-                    method: 'eth_accounts' as any,
-                }) as string[]
+                const accounts = await ethProvider.request<string[]>({
+                    method: 'eth_accounts',
+                })
 
                 if (accounts && accounts.length > 0) {
                     setWalletAddress(accounts[0])
                 } else {
                     // Request account access
-                    const newAccounts = await sdk.wallet.ethProvider.request({
-                        method: 'eth_requestAccounts' as any,
-                    }) as string[]
+                    const newAccounts = await ethProvider.request<string[]>({
+                        method: 'eth_requestAccounts',
+                    })
 
                     if (newAccounts && newAccounts.length > 0) {
                         setWalletAddress(newAccounts[0])

@@ -1,4 +1,19 @@
 import sdk from '@farcaster/miniapp-sdk'
+import { BASE_CHAIN_ID_HEX } from '@/app/config/base'
+
+type MiniAppEthereumProvider = {
+    request: <T>(args: { method: string; params?: unknown[] }) => Promise<T>
+}
+
+type WalletSendCallsResult = string | {
+    bundleId?: string
+    id?: string
+}
+
+function getBundleId(result: WalletSendCallsResult): string {
+    if (typeof result === 'string') return result
+    return result.bundleId || result.id || ''
+}
 
 /**
  * Batch multiple contract calls into a single transaction using EIP-5792
@@ -10,21 +25,22 @@ export async function batchTransactions(calls: Array<{
     value?: string
 }>) {
     try {
+        const ethProvider = sdk.wallet.ethProvider as unknown as MiniAppEthereumProvider
         // Get the user's wallet address
-        const accounts = await sdk.wallet.ethProvider.request({
-            method: 'eth_accounts' as any,
-        }) as string[]
+        const accounts = await ethProvider.request<string[]>({
+            method: 'eth_accounts',
+        })
 
         if (!accounts || accounts.length === 0) {
             throw new Error('No wallet connected')
         }
 
         // Use wallet_sendCalls (EIP-5792) to batch transactions
-        const result = await sdk.wallet.ethProvider.request({
-            method: 'wallet_sendCalls' as any,
+        const result = await ethProvider.request<WalletSendCallsResult>({
+            method: 'wallet_sendCalls',
             params: [{
                 version: '1.0',
-                chainId: '0x2105', // Base mainnet (8453 in hex)
+                chainId: BASE_CHAIN_ID_HEX,
                 from: accounts[0],
                 calls: calls.map(call => ({
                     to: call.to,
@@ -32,11 +48,11 @@ export async function batchTransactions(calls: Array<{
                     value: call.value || '0x0',
                 })),
             }],
-        }) as any
+        })
 
         return {
             success: true,
-            bundleId: result.bundleId || result,
+            bundleId: getBundleId(result),
         }
     } catch (error) {
         console.error('Batch transaction failed:', error)
@@ -56,12 +72,13 @@ export async function sendTransaction(call: {
     try {
         // Try batching first (even for single transaction)
         return await batchTransactions([call])
-    } catch (batchError) {
+    } catch {
         console.log('Batching not supported, using standard transaction')
+        const ethProvider = sdk.wallet.ethProvider as unknown as MiniAppEthereumProvider
 
         // Fallback to regular transaction
-        const txHash = await sdk.wallet.ethProvider.request({
-            method: 'eth_sendTransaction' as any,
+        const txHash = await ethProvider.request<string>({
+            method: 'eth_sendTransaction',
             params: [{
                 to: call.to,
                 data: call.data,

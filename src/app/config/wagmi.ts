@@ -1,9 +1,9 @@
 import { http, createConfig } from 'wagmi'
-import { base } from 'wagmi/chains'
 import { injected, coinbaseWallet } from 'wagmi/connectors'
+import { BASE_BLOCK_EXPLORER_URL, BASE_CHAIN_ID, BASE_MAINNET_CHAIN, BASE_RPC_URL } from './base'
 
 export const config = createConfig({
-    chains: [base],
+    chains: [BASE_MAINNET_CHAIN],
     connectors: [
         injected({ shimDisconnect: true }),
         coinbaseWallet({
@@ -12,12 +12,10 @@ export const config = createConfig({
         }),
     ],
     transports: {
-        [base.id]: http('https://mainnet.base.org'),
+        [BASE_MAINNET_CHAIN.id]: http(BASE_RPC_URL),
     },
     ssr: true,
 })
 
 // Base mainnet configuration
-export const BASE_CHAIN_ID = 8453
-export const BASE_RPC_URL = 'https://mainnet.base.org'
-export const BASE_EXPLORER = 'https://basescan.org'
+export { BASE_BLOCK_EXPLORER_URL, BASE_CHAIN_ID, BASE_RPC_URL }

@@ -124,7 +124,7 @@ export function useBlockBreaker() {
         setBlocks(newBlocks)
     }, [])
 
-    const createPowerUp = (x: number, y: number): PowerUp | null => {
+    const createPowerUp = useCallback((x: number, y: number): PowerUp | null => {
         const powerUpTypes = Object.keys(POWER_UP_CONFIGS) as PowerUpType[]
         const randomValue = Math.random()
         let cumulativeChance = 0
@@ -147,7 +147,7 @@ export function useBlockBreaker() {
             }
         }
         return null
-    }
+    }, [])
 
     const applyPowerUp = useCallback((type: PowerUpType) => {
         const existingTimeout = activePowerUpsRef.current.get(type)
@@ -279,8 +279,8 @@ export function useBlockBreaker() {
         if (!ctx) return
 
         let currentBalls = [...ballsRef.current]
-        let currentBlocks = [...blocksRef.current]
-        let currentPowerUps = [...powerUpsRef.current]
+        const currentBlocks = [...blocksRef.current]
+        const currentPowerUps = [...powerUpsRef.current]
         let currentLives = gameStateRef.current.lives
         let scoreToAdd = 0
         let levelComplete = false

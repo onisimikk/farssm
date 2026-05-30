@@ -5,10 +5,9 @@ import { ScoreBoardABI } from '@/contracts/ScoreBoardABI'
 import { useState } from 'react'
 import { encodeFunctionData } from 'viem'
 import { sendTransaction } from '@/utils/batchTransactions'
+import { SCOREBOARD_CONTRACT_ADDRESS } from '@/app/config/base'
 
-// Hardcoded contract address on Base mainnet
-// Deployed: 2025-12-07 | TX: 0x951a15377c854342ed0a4aaa289a9964f5c8ef42510e819dc801c14b1e75a7b9
-const CONTRACT_ADDRESS = '0xFb6647fA124D021225d52Fc74B2F927F76f3B568' as `0x${string}`
+const CONTRACT_ADDRESS = SCOREBOARD_CONTRACT_ADDRESS as `0x${string}`
 
 export function useScoreContract() {
     const [isPending, setIsPending] = useState(false)
